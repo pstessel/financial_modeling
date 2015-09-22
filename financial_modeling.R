@@ -64,3 +64,18 @@ data.amzn[c(1, nrow(data.amzn)), ]
 # Keeping contiguous rows
 amzn.first.week <- data.amzn[2:6, ]
 amzn.first.week
+
+# Keeping and deleting one column
+names(data.amzn)
+amzn.only.price <- data.amzn[, 4]
+amzn.only.price[c(1:3, nrow(amzn.only.price)), ]
+
+amzn.only.price2 <- data.amzn$amzn.close
+amzn.only.price2[c(1:3, nrow(amzn.only.price2)), ]
+
+amzn.del.adjprice <- data.amzn[, -6]
+amzn.del.adjprice[c(1:3, nrow(amzn.del.adjprice)), ]
+
+# Keeping non-contiguous columns
+amzn.openclose <- data.amzn[, c(1,4)]
+amzn.openclose[c(1:3, nrow(amzn.openclose)), ]
