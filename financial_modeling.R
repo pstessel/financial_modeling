@@ -1,10 +1,10 @@
 rm(list=ls(all=TRUE))
 
-setwd("/Volumes/HD2/Users/pstessel/Documents/Git_Repos/financial_modeling")
+setwd("c:\\Users\\pstessel\\Documents\\repos\\financial_modeling")
 
 
 # Import data into R
-data.amzn <- read.csv("data/amzn_yahoo.csv", header=TRUE)
+data.amzn <- read.csv("data\\amzn_yahoo.csv", header=TRUE)
 head(data.amzn)
 
 # Convert the date variable from a factor to a date
@@ -41,3 +41,26 @@ data.missing <- data.amzn[-400:-500]
 plot(data.missing$amzn.close)
 
 # Checking the dimensions
+dim(data.amzn)
+
+# Outputting summary statistics
+summary(data.amzn)
+
+# Remember to check the ticker symbol
+
+## Basic data manipulation techniques
+
+# Keeping and deleting one row
+amzn.only.first <- data.amzn[1, ]
+amzn.only.first
+
+
+amzn.del.first <- data.amzn[-1, ]
+amzn.del.first
+
+# Keeping first and last rows
+data.amzn[c(1, nrow(data.amzn)), ]
+
+# Keeping contiguous rows
+amzn.first.week <- data.amzn[2:6, ]
+amzn.first.week
