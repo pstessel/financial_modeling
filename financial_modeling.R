@@ -79,3 +79,44 @@ amzn.del.adjprice[c(1:3, nrow(amzn.del.adjprice)), ]
 # Keeping non-contiguous columns
 amzn.openclose <- data.amzn[, c(1,4)]
 amzn.openclose[c(1:3, nrow(amzn.openclose)), ]
+
+# Keeping contiguous columns
+amzn.price.vol <- data.amzn[, 4:5]
+amzn.price.vol[c(1:3, nrow(amzn.price.vol)), ]
+
+# Keeping contiguous and non-contiguous columns
+
+amzn.open.close.volume <- data.amzn[, c(1,4:5)]
+amzn.open.close.volume[c(1:3, nrow(amzn.open.close.volume)), ]
+
+amzn.open.close.volume <- data.amzn[, c(-2:-3, -6)]
+amzn.open.close.volume[c(1:3, nrow(amzn.open.close.volume)), ]
+
+# Subsetting Rows and Columns
+data.vwap <- data.amzn[((nrow(data.amzn)-29)):nrow(data.amzn), c(4,5)]
+data.vwap[c(1:3, nrow(data.vwap)), ]
+
+## Subsetting Using Dates
+
+# Data is an xts Object
+class(data.amzn)
+xts.2012 <- subset(data.amzn[, 4],
+  index(data.amzn) >= "2012-01-01" &
+  index(data.amzn) <= "2012-12-31")
+xts.2012[c(1:3, nrow(xts.2012))]
+
+# Data is a data.frame Object
+amzn.2012 <- cbind(index(data.amzn),
+  data.frame(data.amzn[, 4]))
+amzn.2012[c(1:3, nrow(amzn.2012)), ]
+
+names(amzn.2012)[1] <- paste("date")
+rownames(amzn.2012) <- seq(1, nrow(amzn.2012),1)
+amzn.2012[c(1:3, nrow(amzn.2012)), ]
+
+amzn.2012 <- subset(amzn.2012,
+  amzn.2012$date >= "2012-01-01" &
+  amzn.2012$date <= "2012-12-31")
+amzn.2012[c(1:3, nrow(amzn.2012)), ]
+
+## Converting Daily Prices to Weekly and Monthly Prices
