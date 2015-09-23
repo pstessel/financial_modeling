@@ -1,3 +1,10 @@
+######################################################################
+# Ang, C. S. (2015).
+# Analyzing Financial Data and Implementing Financial Models Using R.
+# Switzerland: Springer International Publishing.
+# Chapter 1: Prices
+######################################################################
+
 rm(list=ls(all=TRUE))
 
 setwd("c:\\Users\\pstessel\\Documents\\repos\\financial_modeling")
@@ -120,3 +127,86 @@ amzn.2012 <- subset(amzn.2012,
 amzn.2012[c(1:3, nrow(amzn.2012)), ]
 
 ## Converting Daily Prices to Weekly and Monthly Prices
+
+# Converting to Weekly Prices
+
+wk <- data.amzn
+data.weekly <- to.weekly(wk)
+data.weekly[c(1:3, nrow(data.weekly)), ]
+
+data.amzn[2:6]
+sum(data.amzn[2:6, 5])
+
+# Convert to Monthly Prices
+mo <- data.amzn
+data.monthly <- to.monthly(mo)
+data.monthly[c(1:3, nrow(data.monthly)), ]
+
+# Plotting a Candlestick Chart Using Monthly Data
+library(quantmod)
+ohlc <- data.monthly[-1, -6]
+amzn.ohlc <- as.quantmod.OHLC(ohlc,
+  col.names = c("Open", "High", "Low", "Close", "Volume"))
+class(amzn.ohlc)
+amzn.ohlc[c(1:3, nrow(amzn.ohlc)), ]
+
+chartSeries(amzn.ohlc,
+  theme = "white.mono",
+  name = "AMZN OHLC")
+
+## Comparing Capital Gains of Multiple Securities Over Time
+ls()
+rm(list=ls())
+ls()
+
+# Normalized Price Chart
+
+# Step 1: Import Data for Each of the Four Securities
+
+# AMZN
+data.amzn <- read.csv("data\\amzn_yahoo.csv", header=TRUE)
+date <- as.Date(data.amzn$Date, format = "%Y-%m-%d")
+data.amzn <- cbind(date, data.amzn[, -1])
+data.amzn <- data.amzn[order(data.amzn$date), ]
+data.amzn <- xts(data.amzn[, 2:7], order.by = data.amzn[,1])
+names(data.amzn) <-
+  paste(c("amzn.Open", "amzn.High", "amzn.Low", 
+  "amzn.Close", "amzn.Volume", "amzn.Adjusted"))
+data.amzn[c(1:3, nrow(data.amzn)), ]
+
+# YHOO
+data.yhoo <- read.csv("data\\yhoo_yahoo.csv", header=TRUE)
+date <- as.Date(data.yhoo$Date, format = "%Y-%m-%d")
+data.yhoo <- cbind(date, data.yhoo[, -1])
+data.yhoo <- data.yhoo[order(data.yhoo$date), ]
+data.yhoo <- xts(data.yhoo[, 2:7], order.by = data.yhoo[,1])
+names(data.yhoo) <-
+  paste(c("yhoo.Open", "yhoo.High", "yhoo.Low", 
+  "yhoo.Close", "yhoo.Volume", "yhoo.Adjusted"))
+data.yhoo[c(1:3, nrow(data.yhoo)), ]
+
+# IBM
+data.ibm <- read.csv("data\\ibm_yahoo.csv", header=TRUE)
+date <- as.Date(data.ibm$Date, format = "%Y-%m-%d")
+data.ibm <- cbind(date, data.ibm[, -1])
+data.ibm <- data.ibm[order(data.ibm$date), ]
+data.ibm <- xts(data.ibm[, 2:7], order.by = data.ibm[,1])
+names(data.ibm) <-
+  paste(c("ibm.Open", "ibm.High", "ibm.Low", 
+  "ibm.Close", "ibm.Volume", "ibm.Adjusted"))
+data.ibm[c(1:3, nrow(data.ibm)), ]
+
+# GSPC
+data.gspc <- read.csv("data\\gspc_yahoo.csv", header=TRUE)
+date <- as.Date(data.gspc$Date, format = "%Y-%m-%d")
+data.gspc <- cbind(date, data.gspc[, -1])
+data.gspc <- data.gspc[order(data.gspc$date), ]
+data.gspc <- xts(data.gspc[, 2:7], order.by = data.gspc[,1])
+names(data.gspc) <-
+  paste(c("gspc.Open", "gspc.High", "gspc.Low", 
+  "gspc.Close", "gspc.Volume", "gspc.Adjusted"))
+data.gspc[c(1:3, nrow(data.gspc)), ]
+
+
+
+
