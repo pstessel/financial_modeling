@@ -7,12 +7,17 @@
 
 rm(list=ls(all=TRUE))
 
-setwd("c:\\Users\\pstessel\\Documents\\repos\\financial_modeling")
+setwd("/Volumes/HD2/Users/pstessel/Documents/Git_Repos/financial_modeling")
+# setwd("c:/Users/pstessel/Documents/repos/financial_modeling")
 
 
 # Import data into R
-data.amzn <- read.csv("data\\amzn_yahoo.csv", header=TRUE)
+#data.amzn <- read.csv("data/amzn_yahoo.csv", header=TRUE)
+data.amzn <- read.csv("data/amzn_yahoo.csv", header=TRUE)
 head(data.amzn)
+
+# Create Vector of Symbols
+symbols <- c("amzn", "gspc", "ibm", "yhoo")
 
 # Convert the date variable from a factor to a date
 date <- as.Date(data.amzn$Date, format="%Y-%m-%d")
@@ -159,53 +164,129 @@ ls()
 rm(list=ls())
 ls()
 
+# Create character vector of symbols
+symbols <- c("amzn", "gspc", "ibm", "yhoo")
+
 # Normalized Price Chart
 
-# Step 1: Import Data for Each of the Four Securities
+## Step 1: Import Data for Each of the Four Securities
 
 # AMZN
-data.amzn <- read.csv("data\\amzn_yahoo.csv", header=TRUE)
+data.amzn <- read.csv("data/amzn_yahoo.csv", header=TRUE)
 date <- as.Date(data.amzn$Date, format = "%Y-%m-%d")
 data.amzn <- cbind(date, data.amzn[, -1])
 data.amzn <- data.amzn[order(data.amzn$date), ]
 data.amzn <- xts(data.amzn[, 2:7], order.by = data.amzn[,1])
 names(data.amzn) <-
-  paste(c("amzn.Open", "amzn.High", "amzn.Low", 
+  paste(c("amzn.Open", "amzn.High", "amzn.Low",
   "amzn.Close", "amzn.Volume", "amzn.Adjusted"))
 data.amzn[c(1:3, nrow(data.amzn)), ]
 
 # YHOO
-data.yhoo <- read.csv("data\\yhoo_yahoo.csv", header=TRUE)
+data.yhoo <- read.csv("data/yhoo_yahoo.csv", header=TRUE)
 date <- as.Date(data.yhoo$Date, format = "%Y-%m-%d")
 data.yhoo <- cbind(date, data.yhoo[, -1])
 data.yhoo <- data.yhoo[order(data.yhoo$date), ]
 data.yhoo <- xts(data.yhoo[, 2:7], order.by = data.yhoo[,1])
 names(data.yhoo) <-
-  paste(c("yhoo.Open", "yhoo.High", "yhoo.Low", 
+  paste(c("yhoo.Open", "yhoo.High", "yhoo.Low",
   "yhoo.Close", "yhoo.Volume", "yhoo.Adjusted"))
 data.yhoo[c(1:3, nrow(data.yhoo)), ]
 
 # IBM
-data.ibm <- read.csv("data\\ibm_yahoo.csv", header=TRUE)
+data.ibm <- read.csv("data/ibm_yahoo.csv", header=TRUE)
 date <- as.Date(data.ibm$Date, format = "%Y-%m-%d")
 data.ibm <- cbind(date, data.ibm[, -1])
 data.ibm <- data.ibm[order(data.ibm$date), ]
 data.ibm <- xts(data.ibm[, 2:7], order.by = data.ibm[,1])
 names(data.ibm) <-
-  paste(c("ibm.Open", "ibm.High", "ibm.Low", 
+  paste(c("ibm.Open", "ibm.High", "ibm.Low",
   "ibm.Close", "ibm.Volume", "ibm.Adjusted"))
 data.ibm[c(1:3, nrow(data.ibm)), ]
 
 # GSPC
-data.gspc <- read.csv("data\\gspc_yahoo.csv", header=TRUE)
+data.gspc <- read.csv("data/gspc_yahoo.csv", header=TRUE)
 date <- as.Date(data.gspc$Date, format = "%Y-%m-%d")
 data.gspc <- cbind(date, data.gspc[, -1])
 data.gspc <- data.gspc[order(data.gspc$date), ]
 data.gspc <- xts(data.gspc[, 2:7], order.by = data.gspc[,1])
 names(data.gspc) <-
-  paste(c("gspc.Open", "gspc.High", "gspc.Low", 
+  paste(c("gspc.Open", "gspc.High", "gspc.Low",
   "gspc.Close", "gspc.Volume", "gspc.Adjusted"))
 data.gspc[c(1:3, nrow(data.gspc)), ]
+
+## Step 2: Combine Data into One Data Object
+
+close.prices <- data.amzn$amzn.Close
+close.prices <- cbind(close.prices, data.gspc$gspc.Close,
+                      data.yhoo$yhoo.Close, data.ibm$ibm.Close)
+close.prices[c(1:3, nrow(close.prices)),]
+
+## Step 3: Convert Data into a data.frame
+
+multi.df <- cbind(index(close.prices),
+                  data.frame(close.prices))
+names(multi.df) <- paste(c("date", "amzn", "gspc", "yhoo", "ibm"))
+rownames(multi.df) <- seq(1, nrow(multi.df),1)
+multi.df[c(1:3, nrow(multi.df)),]
+
+## Step 4: Calculate Normalized Values for Each Security
+
+# Function to Write Code
+normalize_values <- function(x){
+  paste0("multi.df$",(x),".idx <- multi.df$",(x),"/multi.df$",(x),"[1]")
+}
+
+# Execute Code Written by Function
+eval(parse(text=normalize_values(symbols)))
+
+options(digits = 5)
+multi.df[c(1:3, nrow(multi.df)),]
+options(digits=7)
+
+## Step 5: Plot the Capital Appreciation of Each Security
+
+y.range <- range(multi.df[, 6:9])
+y.range
+
+plot(x = multi.df$date,
+     y = multi.df$gspc.idx,
+     type = "l",
+     xlab = "Date",
+     ylim = y.range,
+     ylab = "Value of Investment ($)",
+     col = "black",
+     lty = 1,
+     lwd = 2,
+     main = "Value of $1 Investment in
+     AMZN, IBM, YHOO and the S&P 500 Index
+     December 31, 2010 - December 31, 2013")
+
+lines(x = multi.df$date,
+     y = multi.df$amzn.idx,
+     col = "black",
+     lty = 2,
+     lwd = 1)
+
+lines(x = multi.df$date,
+      y = multi.df$ibm.idx,
+      col = "gray",
+      lty = 2,
+      lwd = 1)
+
+lines(x = multi.df$date,
+      y = multi.df$yhoo.idx,
+      col = "gray",
+      lty = 1,
+      lwd = 1)
+
+abline(h=1, lty = 1, col = "black")
+
+legend("topleft",
+       c("AMZN", "IBM", "YAHOO", "S&P 500 Index"),
+       col = c("black", "gray", "gray", "black"),
+       lty = c(2, 2, 1, 1),
+       lwd = c(1, 1, 1, 2))
 
 
 
