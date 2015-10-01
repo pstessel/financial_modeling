@@ -288,6 +288,25 @@ legend("topleft",
        lty = c(2, 2, 1, 1),
        lwd = c(1, 1, 1, 2))
 
+## Alternative Presentation of Normalized Price Chart
 
+# Step 1: Setup Chart Layout
+par(oma = c(0, 0, 3, 0))
 
+# Step 2: Let R Know We Will Be Plotting 4 Charts with 2 Charts in Each Column
+par(mfrow = c(2, 2))
+
+# Step 3: Create the 4 Plots
+plot(x = multi.df$date,
+     xlab = "",
+     y = multi.df$yhoo.idx
+     ylim = y.range,
+     ylab = "",
+     type = "l",
+     col = "gray",
+     main = "Amazon Stock")
+lines(x = multi.df$date, y = multi.df$gspc.idx, col = "gray")
+lines(x = multi.df$date, y = multi.df$ibm.idx, col = "gray")
+lines(x = multi.df$date, y = multi.df$amzn.idx, col = "black", lwd = 2)
+abline(h = 1)
 
