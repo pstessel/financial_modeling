@@ -299,7 +299,7 @@ par(mfrow = c(2, 2))
 # Step 3: Create the 4 Plots
 plot(x = multi.df$date,
      xlab = "",
-     y = multi.df$yhoo.idx
+     y = multi.df$yhoo.idx,
      ylim = y.range,
      ylab = "",
      type = "l",
@@ -310,3 +310,126 @@ lines(x = multi.df$date, y = multi.df$ibm.idx, col = "gray")
 lines(x = multi.df$date, y = multi.df$amzn.idx, col = "black", lwd = 2)
 abline(h = 1)
 
+plot(x = multi.df$date,
+     xlab = "",
+     y = multi.df$yhoo.idx,
+     ylim = y.range,
+     ylab = "",
+     type = "l",
+     col = "gray",
+     main = "IBM Stock")
+lines(x = multi.df$date, y = multi.df$amzn.idx, col = "gray")
+lines(x = multi.df$date, y = multi.df$gspc.idx, col = "gray")
+lines(x = multi.df$date, y = multi.df$ibm.idx, col = "black", lwd = 2)
+abline(h = 1)
+
+plot(x = multi.df$date,
+     xlab = "",
+     y = multi.df$gspc.idx,
+     ylim = y.range,
+     ylab = "",
+     type = "l",
+     col = "gray",
+     main = "Yahoo Stock")
+lines(x = multi.df$date, y = multi.df$amzn.idx, col = "gray")
+lines(x = multi.df$date, y = multi.df$ibm.idx, col = "gray")
+lines(x = multi.df$date, y = multi.df$yhoo.idx, col = "black", lwd = 2)
+abline(h = 1)
+
+plot(x = multi.df$date,
+     xlab = "",
+     y = multi.df$yhoo.idx,
+     ylim = y.range,
+     ylab = "",
+     type = "l",
+     col = "gray",
+     main = "S&P 500 Index")
+lines(x = multi.df$date, y = multi.df$amzn.idx, col = "gray")
+lines(x = multi.df$date, y = multi.df$ibm.idx, col = "gray")
+lines(x = multi.df$date, y = multi.df$gspc.idx, col = "black", lwd = 2)
+abline(h = 1)
+
+# Step 4: Create a Global Title for the Charts
+title1 = "Value of $1 Invested in Amazon, IBM, Yahoo and the Market"
+title2 = "December 31, 2010 - December 31, 2013"
+title(main = paste(title1, "\n", title2), outer = T)
+
+### Technical Analysis Examples
+
+## Trend: Simple Moving Average (SMA) Crossover
+
+# Step 1: Obtain Closing Prices for Amazon.com Stock
+amzn.sma <- data.amzn[, 4]
+amzn.sma[c(1:3, nrow(amzn.sma)),]
+
+# Step 2: Calculate the Rolling 50-Day and 200-Day Average Price
+amzn.sma$sma50 <- rollmeanr(amzn.sma$amzn.Close, k = 50)
+amzn.sma$sma200 <- rollmeanr(amzn.sma$amzn.Close, k = 200)
+amzn.sma[c(1:3, nrow(amzn.sma)),]
+amzn.sma[48:52, ]
+
+# Step 3: Subset to Only Show 2012 and 2013 Data
+amzn.sma[198:201, ]
+amzn.sma2012 <- subset(amzn.sma,
+                       index(amzn.sma) >= "2012-01-01")
+amzn.sma2012[c(1:3, nrow(amzn.sma2012)),]
+
+# Step 4: Plot the SMA
+y.range <- range(amzn.sma2012, na.rm = TRUE)
+y.range
+par(mfrow = c(1, 1))
+plot(x = index(amzn.sma2012),
+     xlab = "Date",
+     y = amzn.sma2012$amzn.Close,
+     ylim = y.range,
+     ylab = "Price ($)",
+     type = "l",
+     main = "Amazon - Simple Moving Average
+     January 1, 2012 - December 31, 2013")
+lines(x = index(amzn.sma2012), y = amzn.sma2012$sma50)
+lines(x = index(amzn.sma2012), y = amzn.sma2012$sma200, lty = 2)
+legend("topleft",
+       c("Amazon Price", "50-Day Moving Average", "200-Day Moving Average"),
+       lty = c(1, 1, 2))
+
+## Volatility: Bollinger Bands
+
+# Step 1: Obtain Closing Prices for Amazon.com Stock
+amzn.bb <- data.amzn[, 4]
+amzn.bb[c(1:3, nrow(amzn.bb)), ]
+
+# Step 2: Calculate Rolling 20-Day Mean and Standard Deviation
+amzn.bb$avg <- rollmeanr(amzn.bb$amzn.Close, k = 20)
+amzn.bb$sd <- rollapply(amzn.bb$amzn.Close, width = 20, FUN = sd, fill = NA)
+amzn.bb[c(1:3, nrow(amzn.bb)), ]
+amzn.bb[18:22]
+
+# Step 3: Subset to Only Show 2013 Data
+amzn.bb2013 <- subset(amzn.bb,
+                      index(amzn.bb) >= "2013-01-01")
+amzn.bb2013[c(1:3, nrow(amzn.bb2013)), ]
+
+# Step 4: Calculate the Bollinger Bands
+amzn.bb2013$sd2up <- amzn.bb2013$avg + 2 * amzn.bb2013$sd
+amzn.bb2013$sd2down <- amzn.bb2013$avg - 2 * amzn.bb2013$sd
+
+#Step 5: Plot the Bollinger Bands
+y.range <- range(amzn.bb2013[, -3], na.rm = TRUE)
+y.range
+plot(x = index(amzn.bb2013),
+     xlab = "Date",
+     y = amzn.bb2013$amzn.Close,
+     ylim=y.range,
+     ylab = "Price ($)",
+     type = "l",
+     lwd = 3,
+     main = "Amazon - Bollinger Bands (20 days, 2 deviations)
+     January 1, 2013 - December 31, 2013")
+lines(x = index(amzn.bb2013), y = amzn.bb2013$avg, lty = 2)
+lines(x = index(amzn.bb2013), y = amzn.bb2013$sd2up, col = "gray40")
+lines(x = index(amzn.bb2013), y = amzn.bb2013$sd2down, col = "gray40")
+legend("topleft",
+       c("Amazon Price", "20-Day Moving Average", "Upper Band", "Lower Band"),
+       lty = c(1, 2, 1, 1),
+       lwd = c(3, 1, 1, 1),
+       col = c("black", "black", "gray40", "gray40"))
