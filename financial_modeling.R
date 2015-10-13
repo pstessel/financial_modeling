@@ -7,8 +7,8 @@
 
 rm(list=ls(all=TRUE))
 
-setwd("/Volumes/HD2/Users/pstessel/Documents/Git_Repos/financial_modeling")
-# setwd("c:/Users/pstessel/Documents/repos/financial_modeling")
+# setwd("/Volumes/HD2/Users/pstessel/Documents/Git_Repos/financial_modeling")
+setwd("c:/Users/pstessel/Documents/repos/financial_modeling")
 
 
 # Import data into R
@@ -433,3 +433,77 @@ legend("topleft",
        lty = c(1, 2, 1, 1),
        lwd = c(3, 1, 1, 1),
        col = c("black", "black", "gray40", "gray40"))
+
+
+### 1.6.3 Momentum: Relative Strength Index
+
+## Step 1: Obtain Closing Prices for Amazon.com Stock
+amzn.rsi <- data.amzn[,4]
+amzn.rsi
+
+# Calculate the diffirences in Amazon.com's price using the diff command. The
+# difference between the closing price today and yesterday's closing price is
+# reported in the column labeled delta.
+amzn.rsi$delta <- diff(amzn.rsi$amzn.Close)
+amzn.rsi[c(1:3, nrow(amzn.rsi)), ]
+
+## Step 2: Create Dummy Variables to Indicate Whether Price Went Up or Down
+amzn.rsi$up <- ifelse(amzn.rsi$delta > 0, 1, 0)
+amzn.rsi$down <- ifelse(amzn.rsi$delta < 0, 1, 0)
+amzn.rsi[c(1:3, nrow(amzn.rsi)), ]
+
+## Step 3: Calculate Prices for Up Days and Prices for Down Days
+
+# To construct a series of prices on up days, we multiply amzn.Close with up.
+# If it is an up day, up will equal one, so up.val will equal the Amazon.com
+# closing price.
+
+amzn.rsi$up.val <- amzn.rsi$delta*amzn.rsi$up
+amzn.rsi$down.val <- amzn.rsi$delta*amzn.rsi$down
+amzn.rsi <- amzn.rsi[-1,]
+
+# Delete the 12/31/2010 observation -- not needed
+amzn.rsi[c(1:15, nrow(amzn.rsi)), ]
+
+
+## Step 4: Calculate Initial Up and Down 14-Day Averages
+amzn.rsi$up.first.avg <- rollapply(amzn.rsi$up.val,
+                                width=14,
+                                FUN=mean,
+                                fill=NA,
+                                na.rm=TRUE)
+amzn.rsi$down.first.avg <- rollapply(amzn.rsi$down.val,
+                                width=14,
+                                FUN=mean,
+                                fill=NA,
+                                na.rm=TRUE)
+amzn.rsi[c(1:3, nrow(amzn.rsi)), ]
+
+## Step 5: Calculate the Wilder Exponential Moving Average to Calculate Final Up
+## and Down 14-Day Averages.
+
+# This average assumes that the initial average the day before would have a
+# wieght of 13 out of 14 days and the current average will have a weight of one
+# out of 14 days.
+
+up.val <- as.numeric(amzn.rsi$up.val)
+down.val <- as.numeric(amzn.rsi$down.val)
+
+amzn.rsi$down.avg <- amzn.rsi$.first.avg
+for (i in 15:nrow(amzn.rsi)){
+  amzn.rsi$up.avg[i] <- 
+    ((amzn.rsi$up.avg[i-1]*13+up.val[i])/14)
+}
+
+amzn.rsi$down.avg <- amzn.rsi$down.first.avg
+for (i in 15:nrow(amzn.rsi)){
+  amzn.rsi$down.avg[i] <- 
+    ((amzn.rsi$down.avg[i-1]*13+down.val[i])/14)
+}
+
+amzn.rsi[c(1:20, nrow(amzn.rsi)),]
+
+## Step 6: Calculate the RSI
+amzn.rsi$rs <- amzn.rsi$up.avg/amzn.rsi$down.avg
+amzn.rsi$rsi <- 100 - (100/(1 + amzn.rsi$rs))
+amzn.rsi[c(14:20, nrow(amzn.rsi)),]
